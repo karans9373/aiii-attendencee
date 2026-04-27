@@ -1,5 +1,4 @@
-node_module/
-dist/
+node_modules/
 build/
 .env/
 .cache/

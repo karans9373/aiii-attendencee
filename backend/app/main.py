@@ -1,6 +1,9 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api import router
 from app.core.config import get_settings
@@ -9,6 +12,8 @@ from app.services.seed import seed_database
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version="1.0.0")
+WEB_DIST_DIR = Path(__file__).resolve().parents[2] / "web" / "dist"
+WEB_INDEX_FILE = WEB_DIST_DIR / "index.html"
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,6 +23,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+if WEB_DIST_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=WEB_DIST_DIR / "assets"), name="web-assets")
 
 
 @app.on_event("startup")
@@ -34,6 +42,8 @@ def health():
 
 @app.get("/")
 def root():
+    if WEB_INDEX_FILE.exists():
+        return FileResponse(WEB_INDEX_FILE)
     if settings.frontend_url:
         return RedirectResponse(url=settings.frontend_url, status_code=307)
     return HTMLResponse(
@@ -175,3 +185,15 @@ def root():
 
 
 app.include_router(router)
+
+
+@app.get("/{full_path:path}")
+def frontend_fallback(full_path: str):
+    if not WEB_INDEX_FILE.exists():
+        return RedirectResponse(url="/", status_code=307)
+
+    candidate = WEB_DIST_DIR / full_path
+    if candidate.exists() and candidate.is_file():
+        return FileResponse(candidate)
+
+    return FileResponse(WEB_INDEX_FILE)

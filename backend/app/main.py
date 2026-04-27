@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 
 from app.api import router
 from app.core.config import get_settings
@@ -33,6 +34,8 @@ def health():
 
 @app.get("/")
 def root():
+    if settings.frontend_url:
+        return RedirectResponse(url=settings.frontend_url, status_code=307)
     return {
         "product": settings.app_name,
         "status": "live",

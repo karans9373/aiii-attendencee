@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 1440
     database_url: str = "sqlite:///./workpulse.db"
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:19006,http://127.0.0.1:19006"
+    frontend_url: str = ""
 
     @property
     def cors_origins_list(self) -> List[str]:

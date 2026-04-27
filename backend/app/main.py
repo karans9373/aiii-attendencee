@@ -31,4 +31,15 @@ def health():
     return {"status": "ok", "product": settings.app_name}
 
 
+@app.get("/")
+def root():
+    return {
+        "product": settings.app_name,
+        "status": "live",
+        "docs": "/docs",
+        "api": "/api",
+        "health": "/health",
+    }
+
+
 app.include_router(router)

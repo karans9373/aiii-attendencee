@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}WorkPulse AI Mobile{% endblock %}
+{% block body_class %}mobile-body{% endblock %}
+
+{% block content %}
+<div class="app-shell">
+  <div class="phone-frame">
+    <div class="topbar">
+      <div>
+        <p class="eyebrow">Mobile Demo</p>
+        <h1>WorkPulse AI</h1>
+      </div>
+      <span class="status-chip">{{ status }}</span>
+    </div>
+
+    <section class="hero-card">
+      <p class="welcome">Welcome back</p>
+      <h2>{{ profile.name }}</h2>
+      <p class="meta">{{ profile.branch }} • {{ profile.title }}</p>
+      <div class="hero-pill">Geo Verified</div>
+    </section>
+
+    <section class="card-grid">
+      <article class="info-card highlight">
+        <span>Today</span>
+        <strong>{{ attendance_today.status }}</strong>
+        <small>{{ attendance_today.mode }} • {{ attendance_today.mood }}</small>
+      </article>
+      <article class="info-card">
+        <span>Net Salary</span>
+        <strong>₹{{ salary_snapshot.net_salary }}</strong>
+        <small>Latest payroll</small>
+      </article>
+      <article class="info-card">
+        <span>Burnout Risk</span>
+        <strong>{{ insights[1].value }}</strong>
+        <small>AI predicted</small>
+      </article>
+      <article class="info-card">
+        <span>Productivity</span>
+        <strong>{{ insights[0].value }}</strong>
+        <small>Attendance-linked score</small>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h3>Quick Actions</h3>
+      </div>
+      <div class="actions">
+        <button>Punch In</button>
+        <button>Punch Out</button>
+        <button>Apply Leave</button>
+        <button>Payslip</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h3>AI Insights</h3>
+      </div>
+      <div class="insight-list">
+        {% for item in insights %}
+        <div class="insight-row">
+          <div class="dot"></div>
+          <div>
+            <strong>{{ item.label }}</strong>
+            <p>{{ item.value }}</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <nav class="bottom-nav">
+      <a class="active">Home</a>
+      <a>Attendance</a>
+      <a>Salary</a>
+      <a>Profile</a>
+    </nav>
+  </div>
+</div>
+{% endblock %}

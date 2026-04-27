@@ -1,0 +1,366 @@
+{% extends "base.html" %}
+
+{% block title %}WorkPulse AI Dashboard{% endblock %}
+
+{% block content %}
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">WP</div>
+      <div>
+        <h1>WorkPulse AI</h1>
+        <p>Workforce Intelligence Suite</p>
+      </div>
+    </div>
+
+    <a class="theme-toggle" href="{{ url_for('dashboard', section=active_section, theme=next_theme, user=current_user.id) }}">
+      Switch to {{ "Light" if theme == "dark" else "Dark" }} Theme
+    </a>
+
+    <nav>
+      {% for section_id, label in nav_items %}
+      <a class="{{ 'active' if active_section == section_id else '' }}" href="{{ url_for('dashboard', section=section_id, theme=theme, user=current_user.id) }}">{{ label }}</a>
+      {% endfor %}
+    </nav>
+
+    <div class="sidebar-card">
+      <p>Selected employee</p>
+      <strong>{{ current_user.name }}</strong>
+      <span>{{ current_user.employee_code }} • {{ current_user.branch }}</span>
+    </div>
+
+    <div class="sidebar-card sidebar-links">
+      <p>App views</p>
+      <a href="{{ url_for('mobile') }}">Open employee mobile version</a>
+      <a href="{{ url_for('desktop_redirect') }}">Desktop app notes</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Ready To Demo</p>
+        <h2>{{ dict(nav_items).get(active_section, "Executive Dashboard") }}</h2>
+        <p class="hero-copy">
+          This Python version keeps the same product story as the original React site, but renders it with Flask,
+          plain HTML templates, and CSS only.
+        </p>
+      </div>
+      <div class="hero-panel">
+        <div>
+          <span>Camera</span>
+          <strong>Ready</strong>
+        </div>
+        <div>
+          <span>Biometric Status</span>
+          <strong>Enrolled</strong>
+        </div>
+        <div>
+          <span>System</span>
+          <strong>System connected.</strong>
+        </div>
+      </div>
+    </header>
+
+    {% if active_section == "dashboard" %}
+    <section class="stats-grid">
+      {% for item in dashboard.summary %}
+      <article class="glass-card">
+        <p>{{ item.label }}</p>
+        <h3>{{ item.value }}</h3>
+        <span>{{ item.change }} vs last cycle</span>
+      </article>
+      {% endfor %}
+    </section>
+
+    <section class="panel-grid">
+      <article class="glass-card chart-card">
+        <div class="section-title">
+          <span>Attendance</span>
+          <h2>Monthly trend</h2>
+          <p>Executive visibility into attendance momentum.</p>
+        </div>
+        <div class="trend-chart">
+          {% for point in dashboard.monthly_trends %}
+          <div class="trend-bar">
+            <div class="trend-fill" style="height: {{ point.attendance }}%;"></div>
+            <strong>{{ point.month }}</strong>
+            <span>{{ point.attendance }}%</span>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="glass-card chart-card">
+        <div class="section-title">
+          <span>Mix</span>
+          <h2>Attendance breakdown</h2>
+          <p>Face, biometric, and flagged patterns.</p>
+        </div>
+        <div class="breakdown-card">
+          {% for item in dashboard.attendance_breakdown %}
+          <div class="breakdown-row">
+            <div>
+              <strong>{{ item.name }}</strong>
+              <p>{{ item.value }} team members</p>
+            </div>
+            <div class="pill pill-{{ item.color }}">{{ item.value }}%</div>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+    </section>
+    {% endif %}
+
+    {% if active_section == "enrollment" %}
+    <section class="panel-grid">
+      <article class="glass-card">
+        <div class="section-title">
+          <span>New Hire</span>
+          <h2>Employee enrollment</h2>
+          <p>Add a permanent employee with an auto-generated unique code.</p>
+        </div>
+        <form class="employee-form">
+          <label class="field">
+            <span>Full name</span>
+            <input value="New Employee">
+          </label>
+          <label class="field">
+            <span>Email</span>
+            <input value="new@workpulse.ai">
+          </label>
+          <label class="field">
+            <span>Employee code</span>
+            <input value="WPA-100" readonly>
+          </label>
+          <label class="field">
+            <span>Branch</span>
+            <input value="Bengaluru HQ">
+          </label>
+          <label class="field">
+            <span>Title</span>
+            <input value="Operations Associate">
+          </label>
+          <label class="field">
+            <span>Base salary</span>
+            <input value="35000">
+          </label>
+          <button class="primary-btn" type="button">Create Permanent Employee</button>
+        </form>
+      </article>
+
+      <article class="glass-card">
+        <div class="section-title">
+          <span>Directory</span>
+          <h2>Saved employees</h2>
+          <p>Choose a user for live registration and attendance.</p>
+        </div>
+        <div class="feed-list">
+          {% for user in users %}
+          <a class="select-card {{ 'selected' if current_user.id == user.id else '' }}" href="{{ url_for('dashboard', section='enrollment', theme=theme, user=user.id) }}">
+            <div>
+              <strong>{{ user.name }}</strong>
+              <p>{{ user.employee_code }}</p>
+            </div>
+            <div>
+              <span>{{ user.branch }}</span>
+              <b>{{ user.role }}</b>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+      </article>
+    </section>
+    {% endif %}
+
+    {% if active_section == "kiosk" %}
+    <section class="action-grid">
+      <article class="glass-card">
+        <div class="section-title">
+          <span>Live Face Camera</span>
+          <h2>Real camera registration and attendance</h2>
+          <p>Open camera, register face permanently, then mark attendance directly.</p>
+        </div>
+        <label class="field">
+          <span>Selected employee</span>
+          <select>
+            {% for user in users %}
+            <option {% if current_user.id == user.id %}selected{% endif %}>{{ user.name }} • {{ user.employee_code }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <div class="camera-shell">
+          <div class="camera-placeholder">Live camera preview area</div>
+        </div>
+        <div class="button-row">
+          <button class="primary-btn" type="button">Open Real Camera</button>
+          <button class="secondary-btn" type="button">Close Camera</button>
+          <button class="primary-btn" type="button">Register Face Permanently</button>
+          <button class="secondary-btn" type="button">Mark Face Attendance</button>
+        </div>
+      </article>
+
+      <article class="glass-card">
+        <div class="section-title">
+          <span>Device Biometric</span>
+          <h2>Fingerprint / Windows Hello / Face ID prompt</h2>
+          <p>On supported devices, this becomes the app version's verification flow.</p>
+        </div>
+        <div class="kiosk-grid">
+          <div class="kiosk-card">
+            <strong>Enrollment</strong>
+            <p>A device biometric is already enrolled.</p>
+            <button class="primary-btn" type="button">Enroll Device Biometric</button>
+          </div>
+          <div class="kiosk-card">
+            <strong>Direct Attendance</strong>
+            <p>Use fingerprint or device biometric to mark attendance directly.</p>
+            <button class="secondary-btn" type="button">Mark Fingerprint Attendance</button>
+          </div>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <strong>Face Status</strong>
+            <p>Registered</p>
+          </div>
+          <div class="meta-card">
+            <strong>Device Biometric</strong>
+            <p>Enrolled</p>
+          </div>
+        </div>
+      </article>
+    </section>
+    {% endif %}
+
+    {% if active_section == "attendance" %}
+    <section class="panel-grid">
+      <article class="glass-card">
+        <div class="section-title">
+          <span>Updated Records</span>
+          <h2>Attendance history</h2>
+          <p>New punches appear here after direct face or fingerprint entry.</p>
+        </div>
+        <div class="feed-list">
+          {% for item in attendance_history %}
+          <div class="feed-item">
+            <div>
+              <strong>{{ item.date }}</strong>
+              <p>{{ item.mode }} • {{ item.geo_tag }}</p>
+            </div>
+            <div>
+              <span>{{ item.hours }}h</span>
+              <b>{{ item.status }}</b>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+
+      <article class="glass-card">
+        <div class="section-title">
+          <span>Live Feed</span>
+          <h2>Current workforce status</h2>
+          <p>Fresh mark-attendance updates.</p>
+        </div>
+        <div class="feed-list">
+          {% for item in dashboard.live_feed %}
+          <div class="feed-item">
+            <div>
+              <strong>{{ item.employee }}</strong>
+              <p>{{ item.branch }} • {{ item.geo_tag }}</p>
+            </div>
+            <div>
+              <span>{{ item.mood }}</span>
+              <b>{{ item.presence }}</b>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+    </section>
+    {% endif %}
+
+    {% if active_section == "payroll" %}
+    <section class="panel-grid">
+      <article class="glass-card">
+        <div class="section-title">
+          <span>Salary Engine</span>
+          <h2>Run payroll</h2>
+          <p>Calculate salary from attendance and generate payslips.</p>
+        </div>
+        <label class="field">
+          <span>Payroll month</span>
+          <input type="month" value="{{ today_month }}">
+        </label>
+        <div class="button-row">
+          <button class="primary-btn" type="button">Process Monthly Payroll</button>
+          <button class="secondary-btn" type="button">Download Payslip PDF</button>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card"><strong>Present Days</strong><p>{{ monthly_summary.present_days }}</p></div>
+          <div class="meta-card"><strong>Estimated Income</strong><p>INR {{ monthly_summary.estimated_income }}</p></div>
+          <div class="meta-card"><strong>Late Days</strong><p>{{ monthly_summary.late_days }}</p></div>
+          <div class="meta-card"><strong>Overtime</strong><p>{{ monthly_summary.overtime_hours }}h</p></div>
+        </div>
+      </article>
+
+      <article class="glass-card">
+        <div class="section-title">
+          <span>Processed Records</span>
+          <h2>Payroll history</h2>
+          <p>Generated payroll records for the selected employee.</p>
+        </div>
+        <div class="feed-list">
+          {% for item in payroll_history %}
+          <div class="feed-item">
+            <div>
+              <strong>{{ item.month }}</strong>
+              <p>Gross INR {{ item.gross }}</p>
+            </div>
+            <div>
+              <span>Tax INR {{ item.tax }}</span>
+              <b>Net INR {{ item.net }}</b>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </article>
+    </section>
+    {% endif %}
+
+    {% if active_section == "reports" %}
+    <section class="panel-grid">
+      <article class="glass-card">
+        <div class="section-title">
+          <span>Monthly Reports</span>
+          <h2>Personal employee report</h2>
+          <p>Download the user's attendance report and payslip as PDF.</p>
+        </div>
+        <label class="field">
+          <span>Report month</span>
+          <input type="month" value="{{ today_month }}">
+        </label>
+        <div class="button-stack">
+          <button class="primary-btn" type="button">Download Attendance PDF</button>
+          <button class="secondary-btn" type="button">Download Payslip PDF</button>
+        </div>
+      </article>
+
+      <article class="glass-card">
+        <div class="section-title">
+          <span>Summary</span>
+          <h2>Selected employee snapshot</h2>
+          <p>Monthly attendance and income summary.</p>
+        </div>
+        <div class="meta-grid">
+          <div class="meta-card"><strong>Name</strong><p>{{ current_user.name }}</p></div>
+          <div class="meta-card"><strong>Code</strong><p>{{ current_user.employee_code }}</p></div>
+          <div class="meta-card"><strong>Present</strong><p>{{ monthly_summary.present_days }}</p></div>
+          <div class="meta-card"><strong>Payable Days</strong><p>{{ monthly_summary.payable_days }}</p></div>
+        </div>
+      </article>
+    </section>
+    {% endif %}
+  </main>
+</div>
+{% endblock %}

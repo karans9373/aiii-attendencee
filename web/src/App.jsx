@@ -15,7 +15,9 @@ import {
 } from "recharts";
 import { bootstrap as bootstrapFallback, dashboard as dashboardFallback } from "./data";
 
-const API_BASE = `${window.location.protocol}//${window.location.hostname}:8000/api`;
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  `${window.location.protocol}//${window.location.hostname}:8000/api`;
 const COLORS = ["#62f2c1", "#8db1ff", "#ff8b7b", "#ffd46a"];
 const NAV_ITEMS = [
   { id: "dashboard", label: "Executive Dashboard" },

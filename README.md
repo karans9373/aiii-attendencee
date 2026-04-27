@@ -4,7 +4,7 @@ WorkPulse AI is a production-style workforce intelligence platform with:
 
 - `backend/`: FastAPI API for attendance, payroll, analytics, AI insights, and auth
 - `web/`: React admin + HR dashboard
-- `mobile/`: React Native employee app for mobile attendance and self-service
+- `mobile/`: Mobile-first Vite app for employee attendance and self-service
 
 ## Product Positioning
 
@@ -23,7 +23,7 @@ This repository is structured like a sellable SaaS MVP:
 - Backend: FastAPI + SQLAlchemy + JWT
 - Database: PostgreSQL-ready, SQLite fallback for local demo
 - Web: React + Vite + Recharts
-- Mobile: Expo / React Native
+- Mobile: React + Vite mobile-first client
 
 ## Run Locally
 
@@ -50,10 +50,11 @@ npm run dev
 ### Mobile
 
 1. Install dependencies in `mobile/`
-2. Run:
+2. Copy `.env.example` if needed
+3. Run:
 
 ```bash
-npm run start
+npm run dev
 ```
 
 ## Suggested Hosting
@@ -61,7 +62,44 @@ npm run start
 - Backend: Render, Railway, Fly.io, or an EC2/Docker VM
 - Web: Vercel or Netlify
 - Database: Neon, Supabase Postgres, Railway Postgres, or RDS
-- Mobile: Expo EAS build for Android APK / Play Store deployment
+- Mobile demo: Vercel or Netlify
+
+## Deployment
+
+### Render backend
+
+- Use `render.yaml` from the repo root, or configure manually
+- Service root: `backend`
+- Build command: `pip install -r requirements.txt`
+- Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+
+Set:
+
+- `SECRET_KEY`
+- `DATABASE_URL`
+- `CORS_ORIGINS`
+
+### Vercel web
+
+- Import the repo
+- Root directory: `web`
+- Framework preset: `Vite`
+- Set environment variable:
+
+```bash
+VITE_API_BASE_URL=https://your-render-backend.onrender.com/api
+```
+
+### Vercel mobile demo
+
+- Import the repo again as a second Vercel project
+- Root directory: `mobile`
+- Framework preset: `Vite`
+- Set environment variable:
+
+```bash
+VITE_API_BASE_URL=https://your-render-backend.onrender.com/api
+```
 
 ## Selling Angle
 
